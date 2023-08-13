@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
-	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -12,18 +12,18 @@ import (
 var inputFile = "input.txt"
 
 func main() {
-	maxCalorieElf := getMaxCalories()
-	fmt.Printf("Most calories: %v\n", maxCalorieElf)
-
-	top3CalorieElfs := getTopThreeCalories()
-	fmt.Printf("Top 3 calories: %v %v %v\n", top3CalorieElfs[0], top3CalorieElfs[1], top3CalorieElfs[2])
-	fmt.Printf("Top 3 total calories: %v\n", top3CalorieElfs[0]+top3CalorieElfs[1]+top3CalorieElfs[2])
+	n := 3
+	caloriesPerElf := getCaloriesPerElf()
+	x := getTopN(caloriesPerElf, n)
+	fmt.Printf("Top %v calories are:\n", n)
+	for i, v := range x {
+		fmt.Printf("%v: %v\n", i, v)
+	}
 }
 
-func getTopThreeCalories() []int {
+func getCaloriesPerElf() []int {
+	var list = []int{}
 	current := 0
-	top3 := []int{0, 0, 0}
-
 	content, err := os.ReadFile(inputFile)
 	if err != nil {
 		log.Fatal(err)
@@ -32,62 +32,27 @@ func getTopThreeCalories() []int {
 	stringContent := strings.Split(string(content), "\n")
 	for _, line := range stringContent {
 		if line == "" {
-			indexOfSmallest := indexOfSmallestInt(top3)
-			if current > top3[indexOfSmallest] {
-				top3[indexOfSmallest] = current
-			}
+			list = append(list, current)
 			current = 0
-			continue
-		}
+		} else {
+			i, err := strconv.Atoi(line)
+			if err != nil {
+				log.Fatal(err)
+			}
 
-		i, err := strconv.Atoi(line)
-		if err != nil {
-			log.Fatal(err)
+			current += i
 		}
-
-		current += i
 	}
 
-	return top3
+	return list
 }
 
-func indexOfSmallestInt(array []int) int {
-	idx := 0
-	min := math.MaxInt
-	for i, v := range array {
-		if v < min {
-			min = v
-			idx = i
-		}
+func getTopN(slice []int, n int) []int {
+	if n >= len(slice) {
+		return slice
 	}
-	return idx
-}
-
-func getMaxCalories() int {
-	var content, err = os.ReadFile(inputFile)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	max := 0
-	current := 0
-	stringContent := strings.Split(string(content), "\n")
-	for _, line := range stringContent {
-		if line == "" {
-			if current > max {
-				max = current
-			}
-			current = 0
-			continue
-		}
-
-		i, err := strconv.Atoi(line)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		current += i
-	}
-
-	return max
+	sort.Slice(slice, func(i, j int) bool {
+		return slice[i] > slice[j]
+	})
+	return slice[:n]
 }
