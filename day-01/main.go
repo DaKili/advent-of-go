@@ -14,9 +14,9 @@ var inputFile = "input.txt"
 func main() {
 	n := 3
 	caloriesPerElf := getCaloriesPerElf()
-	x := getTopN(caloriesPerElf, n)
+	topN := getTopN(caloriesPerElf, n)
 	fmt.Printf("Top %v calories are:\n", n)
-	for i, v := range x {
+	for i, v := range topN {
 		fmt.Printf("%v: %v\n", i, v)
 	}
 }
