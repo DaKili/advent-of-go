@@ -42,6 +42,23 @@ var resultMap = map[string]map[string]string{
 		"Scissors": "draw",
 	},
 }
+var requiredMap = map[string]map[string]string{
+	"Rock": {
+		"X": "Scissors",
+		"Y": "Rock",
+		"Z": "Paper",
+	},
+	"Paper": {
+		"X": "Rock",
+		"Y": "Paper",
+		"Z": "Scissors",
+	},
+	"Scissors": {
+		"X": "Paper",
+		"Y": "Scissors",
+		"Z": "Rock",
+	},
+}
 
 type Game struct {
 	opponent string
@@ -63,19 +80,17 @@ func gameResult(opponent string, self string) int {
 }
 
 func main() {
-	games := loadGuide()
-	points := getTotalPoints(games)
-	fmt.Printf("Total scode: %v\n", points)
+	games1 := loadGuide1()
+	points1 := getTotalPoints(games1)
+	fmt.Printf("Total scode part 1: %v\n", points1)
+	games2 := loadGuide2()
+	points2 := getTotalPoints(games2)
+	fmt.Printf("Total scode part 2: %v\n", points2)
 }
 
-func loadGuide() []*Game {
-	content, err := os.ReadFile(inputFile)
-	if err != nil {
-		log.Fatal(err)
-	}
-
+func loadGuide1() []*Game {
 	games := []*Game{}
-	lines := strings.Split(string(content), "\n")
+	lines := getLinesFromFile()
 	for _, v := range lines {
 		if v == "" {
 			continue
@@ -85,6 +100,30 @@ func loadGuide() []*Game {
 		games = append(games, game)
 	}
 	return games
+}
+
+func loadGuide2() []*Game {
+	games := []*Game{}
+	lines := getLinesFromFile()
+	for _, v := range lines {
+		if v == "" {
+			continue
+		}
+		splitGames := strings.Split(v, " ")
+		required := requiredMap[actionMap[splitGames[0]]][splitGames[1]]
+		game := newGame(actionMap[splitGames[0]], required)
+		games = append(games, game)
+	}
+	return games
+}
+
+func getLinesFromFile() []string {
+	content, err := os.ReadFile(inputFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	lines := strings.Split(string(content), "\n")
+	return lines
 }
 
 func getTotalPoints(games []*Game) int {
